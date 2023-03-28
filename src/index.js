@@ -1194,18 +1194,34 @@ const TaskBlock = (props) => {
 
   const calculateTaskHeight = (task) => {
     let taskDuration
+    let minutes
 
-    taskDuration = parseInt(task.taskEndTime) - parseInt(task.taskStartTime);
+    let endMinute = task.taskEndTime.split(':')
+    endMinute = parseInt(endMinute[1])
+    let startMinute = task.taskStartTime.split(':')
+    startMinute = parseInt(startMinute[1])
+
+    minutes = endMinute - startMinute
+
+    taskDuration = parseInt(task.taskEndTime) - parseInt(task.taskStartTime) + (minutes / 60);
 
     if (taskDuration === 0) {
       taskDuration = 1;
     }
 
-    return taskDuration
+    return {
+      taskDuration,
+      minutes: startMinute,
+    }
   }
 
   const calculateStartHeight = (task) => {
-    let startHeight = 10 + 20 * parseInt(task.taskStartTime)
+
+    const { minutes } = calculateTaskHeight(task)
+
+    console.log(minutes)
+
+    let startHeight = 10 + 20 * (parseInt(task.taskStartTime) + Math.abs(minutes / 60))
 
     return startHeight
   }
@@ -1213,16 +1229,21 @@ const TaskBlock = (props) => {
   return (
     <ul>
       {
-        taskList.map((newTodo, index) =>
-          <li key={newTodo.taskName + index.toString()} className="taskBlockElement" style={{
-            top: calculateStartHeight(newTodo),
-            // left: 70 + 10 * index,
-            height: 20 * calculateTaskHeight(newTodo),
-          }}
-            onClick={() => { this.props.onTaskClick(index) }}>
+        taskList.map((newTodo, index) => {
+          const { taskDuration } = calculateTaskHeight(newTodo)
 
-            {newTodo.taskName}
-          </li>
+          return (
+            <li key={newTodo.taskName + index.toString()} className="taskBlockElement" style={{
+              top: calculateStartHeight(newTodo),
+              // left: 70 + 10 * index,
+              height: 20 * taskDuration,
+            }}
+              onClick={() => { this.props.onTaskClick(index) }}>
+
+              {newTodo.taskName}
+            </li>
+          )
+        }
         )
       }
     </ul>
