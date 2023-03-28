@@ -1086,6 +1086,7 @@ function ExampleWithManyStates() {
 class DailyTime extends React.Component {
   render() {
 
+
     // let task;
     // if (this.props.taskList[0]) {
     //   if (this.props.taskList[0].subtasks) {
@@ -1109,44 +1110,41 @@ class DailyTime extends React.Component {
     const time = new Array(25).fill(0)
     let timeIndex = time.map((hour, index) => (index + ':00  '))
 
-    if (this.props.taskList[0]) {
+    // if (this.props.taskList[0]) {
 
-      //each date has its own list of tasks, this filter the tasks that belongs to a specific date
-      const newTaskList = this.props.taskList.filter((taskObject) => {
-        const taskDate = taskObject.taskDate
-        const calendarDate = this.props.date
+    //   //each date has its own list of tasks, this filter the tasks that belongs to a specific date
+    //   const newTaskList = this.props.taskList.filter((taskObject) => {
+    //     const taskDate = taskObject.taskDate
+    //     const calendarDate = this.props.date
 
-        return taskDate === calendarDate
-      })
+    //     return taskDate === calendarDate
+    //   })
 
-      //this uses task end time minus start time to calculate the height of the task shown on the calendar
-      newTaskList.map((taskObject) => {
-        const index = taskObject.taskStartTime;
-        const task = taskObject.taskName;
+    //this uses task end time minus start time to calculate the height of the task shown on the calendar
+    // newTaskList.map((taskObject) => {
+    //   const index = taskObject.taskStartTime;
+    //   const task = taskObject.taskName;
 
-        let taskDuration = taskObject.taskEndTime - taskObject.taskStartTime;
+    //   let taskDuration = taskObject.taskEndTime - taskObject.taskStartTime;
 
-        if (taskDuration === 0) {
-          taskDuration = 1;
-        }
+    //   if (taskDuration === 0) {
+    //     taskDuration = 1;
+    //   }
 
-        //better to use map() or forEach()???
-        return (
-          timeIndex[index] =
-          <span className="taskField">
-            <span>{timeIndex[index]}</span>   <span className="individualTask" style={{
-              height: 20 * taskDuration
-            }}>{task}</span>
-
-            {/* div span, does it matter? */}
-          </span>
-        )
-      })
-
-
-      // const index = this.props.taskList[0].taskStartTime - 8;
-      // timeIndex[index] = timeIndex[index] + task
-    }
+    //   //better to use map() or forEach()???
+    //   return (
+    //     timeIndex[index] =
+    //     <span className="taskField">
+    //       <span>{timeIndex[index]}</span>   <span className="taskBlockElement" style={{
+    //         height: 20 * taskDuration
+    //       }}>{task}</span>
+    //       {/* div span, does it matter? */}
+    //     </span>
+    //   )
+    // })
+    // const index = this.props.taskList[0].taskStartTime - 8;
+    // timeIndex[index] = timeIndex[index] + task
+    // }
 
     // return 'hello'
     // return <div>Hello</div>
@@ -1169,12 +1167,10 @@ class DailyTime extends React.Component {
 
     return (
       timeIndex.map((hr, i) => (
-        <tr>
-          <td key={i} className='hourOfDay'>{hr}</td>
+        <tr key={i}>
+          <td className='hourOfDay'>{hr}</td>
           <td width="100%" className="timelineLinesWrapper">
-
             <div className="timelineLines" />
-            <TaskBlock />
           </td>
         </tr>
       ))
@@ -1190,95 +1186,205 @@ class DailyTime extends React.Component {
   }
 }
 
-function TaskBlock() {
-  return (
-    <div className="taskBlockElement">
-      task 1
-      start time:
-      end time:
-    </div>
-  )
+const TaskBlock = (props) => {
+  // destructure same as doing props.taskList
+  // <TaskBlock taskList={someListFromMasterBoard} />
+  // remember: no "this" in hooks (functions)
+  const { taskList } = props
 
+  const calculateTaskHeight = (task) => {
+    let taskDuration
+
+    taskDuration = parseInt(task.taskEndTime) - parseInt(task.taskStartTime);
+
+    if (taskDuration === 0) {
+      taskDuration = 1;
+    }
+
+    return taskDuration
+  }
+
+  const calculateStartHeight = (task) => {
+    let startHeight = 10 + 20 * parseInt(task.taskStartTime)
+
+    return startHeight
+  }
+
+  return (
+    <ul>
+      {
+        taskList.map((newTodo, index) =>
+          <li key={newTodo.taskName + index.toString()} className="taskBlockElement" style={{
+            top: calculateStartHeight(newTodo),
+            // left: 70 + 10 * index,
+            height: 20 * calculateTaskHeight(newTodo),
+          }}
+            onClick={() => { this.props.onTaskClick(index) }}>
+
+            {newTodo.taskName}
+          </li>
+        )
+      }
+    </ul>
+  )
 }
 
+// class _TaskBlock extends React.Component {
 
-class Calendar extends React.Component {
-  render() {
-    // console.log(this.props.taskName)
-    const taskDate = this.props.taskDate
+//   render() {
 
-    const currentDay = this.props.currentDay;
-    let currentMonth = currentDay.toLocaleString('default', { month: 'long' });
-    let currentDate = currentDay.getDate();
+//     const newTodoList = this.props.taskList;
+//     let taskDuration
 
-    const tomorrow = new Date(currentDay);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    let tomorrowMonth = tomorrow.toLocaleString('default', { month: 'long' });
-    let tomorrowDate = tomorrow.getDate();
+//     //str.split(":")
 
-    const overmorrow = new Date(currentDay);
-    overmorrow.setDate(overmorrow.getDate() + 2);
-    let overmorrowMonth = overmorrow.toLocaleString('default', { month: 'long' });
-    let overmorrowDate = overmorrow.getDate();
+//     newTodoList.map((taskObject) => {
+
+//       taskDuration = parseInt(taskObject.taskEndTime) - parseInt(taskObject.taskStartTime);
+
+//       if (taskDuration === 0) {
+//         taskDuration = 1;
+//       }
+
+//       // console.log(taskObject)
+
+//       return (taskDuration)
 
 
-    //generate a list of dates and corresponding id's, for each of them, a DailyTims is attached and their id is inserted...
+//     })
 
-    return (
-      <div className="calendar">
-        {/* <div>
+//     let listItems = newTodoList.map((newTodo, index) =>
+//       <li className="taskBlockElement" style={{
+//         top: 100,
+//         height: 20 * taskDuration,
+//       }}
+
+//         key={index}
+//         onClick={() => { this.props.onTaskClick(index) }}>
+
+//         {newTodo.taskName}
+//       </li>
+//     )
+
+//     return (
+//       <ul>
+//         {listItems}
+//       </ul>
+//     )
+//   }
+
+// }
+
+
+
+const Calendar = (props) => {
+  // const taskDate = props.newTaskDate.split('-')
+  // const taskMonth = taskDate[1]
+  // const taskDay = taskDate[2]
+  const { taskList } = props
+
+  const currentDay = props.currentDay;
+  let currentMonth = currentDay.toLocaleString('default', { month: 'long' });
+  let currentDate = currentDay.getDate();
+  let currentMonthNumber = currentDay.getMonth() + 1;
+
+  const tomorrow = new Date(currentDay);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  let tomorrowMonth = tomorrow.toLocaleString('default', { month: 'long' });
+  let tomorrowDate = tomorrow.getDate();
+  let tomorrowMonthNumber = tomorrow.getMonth() + 1;
+
+  const overmorrow = new Date(currentDay);
+  overmorrow.setDate(overmorrow.getDate() + 2);
+  let overmorrowMonth = overmorrow.toLocaleString('default', { month: 'long' });
+  let overmorrowDate = overmorrow.getDate();
+  let overmorrowMonthNumber = overmorrow.getMonth() + 1;
+
+  const currentDayList =
+    taskList.filter((task, index) => {
+      const taskDate = task.newTaskDate.split('-')
+      const taskMonth = taskDate[1]
+      const taskDay = taskDate[2]
+      if (parseInt(taskMonth) === currentMonthNumber && parseInt(taskDay) === currentDate) {
+        return true
+      }
+      return false
+    })
+
+  const tomorrowList =
+    taskList.filter((task, index) => {
+      const taskDate = task.newTaskDate.split('-')
+      const taskMonth = taskDate[1]
+      const taskDay = taskDate[2]
+      if (parseInt(taskMonth) === tomorrowMonthNumber && parseInt(taskDay) === tomorrowDate) {
+        return true
+      }
+      return false
+    })
+
+  const overmorrowList =
+    taskList.filter((task, index) => {
+      const taskDate = task.newTaskDate.split('-')
+      const taskMonth = taskDate[1]
+      const taskDay = taskDate[2]
+      if (parseInt(taskMonth) === overmorrowMonthNumber && parseInt(taskDay) === overmorrowDate) {
+        return true
+      }
+      return false
+    })
+
+  return (
+    <div className="calendar">
+      {/* <div>
           <button>{'<'}&lt;</button>
         </div> */}
 
-        <table className="day">
-          <thead>
-            <tr>
-              <th colSpan={2}>
-                <div className="date">
-                  <button onClick={this.props.handleJumpBack} >{'<'}&lt;</button>
-                  <button onClick={this.props.jumpToToday}>Today</button>
-                  <span>{currentMonth} {currentDate}</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <DailyTime taskList={this.props.taskList} date="26" />
-          </tbody>
+      <table className="day">
+        <thead>
+          <tr>
+            <th colSpan={2}>
+              <div className="date">
+                <button onClick={props.handleJumpBack} >{'<'}&lt;</button>
+                <button onClick={props.jumpToToday}>Today</button>
+                <span>{currentMonth} {currentDate}</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody className="taskBlockElementWrapper">
+          <DailyTime />
+          <TaskBlock taskName={props.taskName} taskList={currentDayList} taskStartTime={props.taskStartTime} taskEndTime={props.taskEndTime} />
+        </tbody>
+      </table>
 
-        </table>
+      <table className="day">
+        <thead>
+          <tr>
+            <th colSpan={2} className="date">{tomorrowMonth} {tomorrowDate}</th>
+          </tr>
+        </thead>
+        <tbody className="taskBlockElementWrapper">
+          <DailyTime />
+          <TaskBlock taskName={props.taskName} taskList={tomorrowList} taskStartTime={props.taskStartTime} taskEndTime={props.taskEndTime} />
+        </tbody>
 
-        <table className="day">
-          <thead>
-            <tr>
-              <th colSpan={2} className="date">{tomorrowMonth} {tomorrowDate}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <DailyTime taskList={this.props.taskList} date="26" />
-          </tbody>
+      </table>
+      <table className="day">
+        <thead>
+          <tr>
+            <th colSpan={2} className="date">{overmorrowMonth} {overmorrowDate}</th>
+            <th>  <button onClick={props.handleJumpForward} >{'>>'}</button> </th>
+          </tr>
+        </thead>
+        <tbody className="taskBlockElementWrapper">
+          <DailyTime />
+          <TaskBlock taskName={props.taskName} taskList={overmorrowList} taskStartTime={props.taskStartTime} taskEndTime={props.taskEndTime} />
+        </tbody>
+      </table>
 
-        </table>
-        <table className="day">
-          <thead>
-            <tr>
-              <th colSpan={2} className="date">{overmorrowMonth} {overmorrowDate}</th>
-              <th>  <button onClick={this.props.handleJumpForward} >{'>>'}</button> </th>
-            </tr>
-          </thead>
-          <tbody>
-            <DailyTime taskList={this.props.taskList} date="26" />
-          </tbody>
-
-        </table>
-
-
-      </div>
-    )
-  }
+    </div>
+  )
 }
-
-
 
 function TaskField(props) {
   return (
@@ -1286,13 +1392,10 @@ function TaskField(props) {
       <div>
         <label>
           Task date:
-          <select name="taskDate" value={props.taskDate} onChange={props.onTaskChange}>
-            <option value='26'>Feb 6</option>
-            <option value='27'>Feb 7</option>
-            <option value='28'>Feb 8</option>
-            <option value='29'>Feb 9</option>
-          </select>
+          <input type="date" id="date" name="newDate" value={props.newTaskDate} onChange={props.onTaskChange} min="2023-01-01" max="2023-12-31" />
+          {/* calendar only intake 2023 year's dates for now */}
         </label>
+
       </div>
       <div>
         <label>
@@ -1315,7 +1418,6 @@ function TaskField(props) {
               <input type="time" id="endTime" name="endTime" value={props.endTime} onChange={props.onTimeChange} />
               <span className={props.errorLine ? "errorLine" : ''} />
             </div>
-            {/* {console.log(props.endTime)} */}
           </label>
         </div>
 
@@ -1333,8 +1435,13 @@ function NewTodo(props) {
 
       key={index}
       onClick={() => { props.onTaskClick(index) }}>
+      <p>
+        {newTodo.taskName}
+      </p>
+      <p>
+        {newTodo.newTaskDate}
+      </p>
 
-      {newTodo.taskName}
     </li>
   )
 
@@ -1357,7 +1464,7 @@ function NewTodo(props) {
 class MasterBoard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { taskName: '', taskList: [], taskDate: '26', allDayCheckbox: false, taskStartTime: '8', taskEndTime: '8', startTime: '00:00', endTime: '00:00', errorLine: false, currentDay: new Date(), }
+    this.state = { taskName: '', taskList: [], newDate: this.handleDateFormat(), allDayCheckbox: false, taskStartTime: '8', taskEndTime: '8', startTime: '09:00', endTime: '17:00', errorLine: false, currentDay: new Date(), date: this.handleDateFormat(), }
 
     this.handleTaskChange = this.handleTaskChange.bind(this);
     this.handleCheckbox = this.handleCheckbox.bind(this);
@@ -1368,6 +1475,17 @@ class MasterBoard extends React.Component {
     this.handleJumpBackDays = this.handleJumpBackDays.bind(this);
     this.handleJumpForDays = this.handleJumpForDays.bind(this);
     this.handleJumpToToday = this.handleJumpToToday.bind(this);
+
+    this.handleDateFormat = this.handleDateFormat.bind(this);
+  }
+
+  handleDateFormat() {
+    let date = new Date()
+    // TODO: Splitting by T removes timezone information so date might be off by some hours
+    const format = date.toJSON().split('T')
+    const formattedDate = format[0]
+
+    return formattedDate
   }
 
   handleTaskChange(event) {
@@ -1379,15 +1497,14 @@ class MasterBoard extends React.Component {
     this.setState({ allDayCheckbox: event.target.checked })
   }
 
-
   handleSubmit(event) {
     const oldList = this.state.taskList;
 
     const newTask = {
       taskName: this.state.taskName,
-      taskDate: this.state.taskDate,
-      taskStartTime: this.state.taskStartTime,
-      taskEndTime: this.state.taskEndTime,
+      newTaskDate: this.state.newDate,
+      taskStartTime: this.state.startTime,
+      taskEndTime: this.state.endTime,
     };
 
     if (newTask.taskName === '') {
@@ -1401,6 +1518,7 @@ class MasterBoard extends React.Component {
 
   handlePreventSubmit(event) {
     event.preventDefault();
+    alert("Please enter a valid end time.")
   }
 
   handleTaskClick(index) {
@@ -1421,9 +1539,6 @@ class MasterBoard extends React.Component {
     const { name, value, } = event.target
 
     this.setState({ [name]: value }, () => {
-      // console.log(name, value)
-      // console.log('startTime', this.state.startTime)
-
       const { startTime, endTime } = this.state
 
       // check time and setState
@@ -1471,7 +1586,7 @@ class MasterBoard extends React.Component {
   render() {
     return (
       <div>
-        <Calendar taskList={this.state.taskList} taskDate={this.state.taskDate} currentDay={this.state.currentDay} handleJumpBack={this.handleJumpBackDays} handleJumpForward={this.handleJumpForDays} jumpToToday={this.handleJumpToToday} />
+        <Calendar taskList={this.state.taskList} newTaskDate={this.state.newDate} taskStartTime={this.state.startTime} taskEndTime={this.state.endTime} currentDay={this.state.currentDay} handleJumpBack={this.handleJumpBackDays} handleJumpForward={this.handleJumpForDays} jumpToToday={this.handleJumpToToday} />
         <form onSubmit={this.state.errorLine ? this.handlePreventSubmit : this.handleSubmit} className="masterboard">
           <p>Masterboard</p>
           <label>
@@ -1484,9 +1599,9 @@ class MasterBoard extends React.Component {
               onChange={this.handleTaskChange}
             />
           </label>
-          <TaskField taskDate={this.state.taskDate} onTaskChange={this.handleTaskChange} allDayCheckbox={this.state.allDayCheckbox} onCheckboxChange={this.handleCheckbox} taskStartTime={this.state.taskStartTime} taskEndTime={this.state.taskEndTime} startTime={this.state.startTime} endTime={this.state.endTime} onTimeChange={this.handleValidateTime} errorLine={this.state.errorLine} />
+          <TaskField newTaskDate={this.state.newDate} onTaskChange={this.handleTaskChange} allDayCheckbox={this.state.allDayCheckbox} onCheckboxChange={this.handleCheckbox} taskStartTime={this.state.taskStartTime} taskEndTime={this.state.taskEndTime} startTime={this.state.startTime} endTime={this.state.endTime} onTimeChange={this.handleValidateTime} errorLine={this.state.errorLine} />
           <input type='submit' value='Create a new task' />
-          <NewTodo value={this.state.taskList} onTaskClick={this.handleTaskClick} />
+          <NewTodo value={this.state.taskList} taskDate={this.state.newDate} onTaskClick={this.handleTaskClick} />
 
 
         </form>

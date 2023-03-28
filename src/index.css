@@ -135,7 +135,7 @@ table {
 }
 
 body {
-  font: 14px "Century Gothic", Futura, sans-serif;
+  font: 14px "Trebuchet MS", Futura, sans-serif;
   margin: 20px;
 }
 
@@ -162,7 +162,7 @@ ul {
   background: rgb(118, 189, 154);
   border: 1px solid #999;
   float: left;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: normal;
   line-height: 34px;
   height: 400px;
@@ -177,6 +177,7 @@ ul {
 
 .masterboardTodoList {
   overflow-y: scroll;
+  max-height: 150px;
 }
 
 .masterboardTodos {
@@ -185,12 +186,12 @@ ul {
   min-width: 50px;
   max-width: 100px;
   min-height: 50px;
-  max-height: 50px;
+  max-height: 100px;
   text-align: center;
   background-color: darkgreen;
   color: white;
   margin: 2px;
-  /* display: inline-block; */
+  display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -213,6 +214,7 @@ ul {
 .taskField {
   display: flex;
   justify-content: space-between;
+  position: relative
 }
 
 
@@ -293,20 +295,27 @@ ul {
 }
 
 .timelineLines {
-  display: flex;
-  flex-direction: row;
+  /* display: flex;
+  flex-direction: row; */
   height: 1px;
   width: 95%;
   background-color: #ccc;
   position: absolute;
   top: 10px;
-  left: 3px;
+  left: 10px;
+}
+
+.taskBlockElementWrapper {
+  position: relative;
 }
 
 .taskBlockElement {
   position: absolute;
   background-color: antiquewhite;
+  left: 50px;
+  width: 82%;
 }
+
 
 th {
   background-color: #04aa6d;
