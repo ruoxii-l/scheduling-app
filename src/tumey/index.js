@@ -32,7 +32,7 @@ import Portal from '@mui/base/Portal'
 
 import AddTaskIcon from '@mui/icons-material/AddTask'
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined'
-import { BorderClearOutlined } from '@mui/icons-material'
+import { Block, BorderClearOutlined } from '@mui/icons-material'
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 import CloudOutlinedIcon from '@mui/icons-material/CloudOutlined'
 import CloudQueueTwoToneIcon from '@mui/icons-material/CloudQueueTwoTone'
@@ -417,7 +417,6 @@ const Calendar = (props) => {
 
   const fetchWeather = () => {
     const refDate = new Date()
-    // console.log(currentDay.getDate() >= refDate.getDate());
     if (currentDay.getFullYear() > refDate.getFullYear()) {
       fetchTodayWeather()
       fetchTomoWeather()

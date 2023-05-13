@@ -1,6 +1,6 @@
 # Tumey Scheduling App
 
-v2.0
+v2.0.1
 
 Tumey is online! at https://tumey.surge.sh/
 
