@@ -43,8 +43,14 @@ import ThunderstormOutlinedIcon from '@mui/icons-material/ThunderstormOutlined'
 const formatDateToToday = () => {
   const today = new Date()
   // TODO: Splitting by T removes timezone information so date might be off by some hours
-  const format = today.toJSON().split('T')
-  const formattedDate = format[0]
+  let year = today.getFullYear()
+  let month = today.getMonth() + 1
+  if (month < 10) {
+    month = `0${month}`
+  }
+  let day = today.getDate()
+
+  let formattedDate = `${year}-${month}-${day}`
 
   return formattedDate
 }
@@ -454,11 +460,14 @@ const Calendar = (props) => {
   }
 
   const formatDate = (today) => {
-    // TODO: Splitting by T removes timezone information so date might be off by some hours
-    const format = today.toJSON().split('T')
-    const formattedDate = format[0]
+    let year = today.getFullYear()
+    let month = today.getMonth() + 1
+    if (month < 10) {
+      month = `0${month}`
+    }
+    let day = today.getDate()
 
-    // console.log(formattedDate);
+    let formattedDate = `${year}-${month}-${day}`
 
     return formattedDate
   }
@@ -550,8 +559,8 @@ const Calendar = (props) => {
     boxRef.current.addEventListener('scroll', getPosition)
 
     return () => {
-      boxRef.current.removeEventListener('resize', getPosition)
-      boxRef.current.removeEventListener('scroll', getPosition)
+      boxRef?.current.removeEventListener('resize', getPosition)
+      boxRef?.current.removeEventListener('scroll', getPosition)
     }
   }, [])
 
@@ -947,15 +956,20 @@ function NewTodo(props) {
     <Grid item key={index} xs={1} sm={1} md={1}>
       <motion.div
         style={{
-          backgroundColor: 'pink',
+          backgroundColor: '#2196F3',
           border: '1px solid black',
-          // height: 50,
-          // width: 50
+          borderRadius: 6,
+          margin: 5,
         }}
+        id={index}
+        className='newToDo'
         drag
         // dragConstraints={props.calendarRef?.current}
         dragSnapToOrigin={true}
         dragElastic={0.2}
+        onMouseDown={() => {
+          dispatch(editTask(index))
+        }}
         onDragEnd={(event, info) => {
           let x = info.point.x
           let y = info.point.y
@@ -968,21 +982,13 @@ function NewTodo(props) {
         dragMomentum={false}
       >
         <Box
-          p={1}
-          m={1}
-          minHeight={55.34}
-          //***height of task...setting it this now just for aethetics purpose*/
-          border='1px solid black'
+          p={0.5}
+          m={0.5}
+          minHeight={50}
           borderRadius={1.5}
           backgroundColor='#2196F3'
           color='white'
-          key={index}
-          onMouseDown={() => {
-            dispatch(editTask(index))
-          }}
           className='newToDo'
-          // position="relative"
-          // zIndex={9999}
         >
           <p>{newTodo.taskName}</p>
           <p>{newTodo.showOnCalendar ? newTodo.taskDate : null}</p>
