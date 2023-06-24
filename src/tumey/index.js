@@ -32,7 +32,7 @@ import Portal from '@mui/base/Portal'
 
 import AddTaskIcon from '@mui/icons-material/AddTask'
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined'
-import { Block, BorderClearOutlined } from '@mui/icons-material'
+import { Block, BorderClearOutlined, ConstructionTwoTone } from '@mui/icons-material'
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
 import CloudOutlinedIcon from '@mui/icons-material/CloudOutlined'
 import CloudQueueTwoToneIcon from '@mui/icons-material/CloudQueueTwoTone'
@@ -94,34 +94,6 @@ const DailyTimeFC = () => {
   const time = new Array(25).fill(0)
   const times = time.map((hour, index) => `${index < 10 ? `0${index}` : index}:00`)
 
-  const timesIndex = [
-    '00:00',
-    '01:00',
-    '02:00',
-    '03:00',
-    '04:00',
-    '05:00',
-    '06:00',
-    '07:00',
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '19:00',
-    '20:00',
-    '21:00',
-    '22:00',
-    '23:00',
-    '24:00',
-  ]
-
   // Times is an array of elements
   const Times = times.map((hr, i) => (
     <tr key={i}>
@@ -143,13 +115,18 @@ const TaskBlock = (props) => {
   // destructure same as doing props.taskList
   // <TaskBlock taskList={someListFromMasterBoard} />
   // remember: no "this" in hooks (functions)
-  const { taskList } = props
+  const { dayTaskList } = props
   // const [task1, task2, task3] = taskList
 
   // const array = [1, 2, 3, 4]
   // const [first, anything, second] = array
 
   // const object = { taskList: [], date: new Date() }
+
+  //filter out from taskList tasks that have allDay=true since they will show in the allDay panel instead
+
+  const taskList = dayTaskList.filter((task) => !task.allDay)
+  // console.log(newTaskList)
 
   const dispatch = useDispatch()
 
@@ -277,6 +254,24 @@ const TaskBlock = (props) => {
   )
 }
 
+const AllDayBlock = (props) => {
+  const taskList = props.taskList
+
+  const allDayItems = taskList.map((newAllDay, index) => (
+    <Box>
+      <p>
+        {index + 1} -- {newAllDay.taskName}
+      </p>
+    </Box>
+  ))
+  return (
+    <Box position='sticky' top='0' display='flex' flexDirection='row'>
+      <Box flex={1}> All day</Box>
+      <Box flex={5}>{allDayItems}</Box>
+    </Box>
+  )
+}
+
 const Calendar = (props) => {
   // const { taskList } = props;
   const allTaskList = useSelector((state) => state.taskList.list)
@@ -300,9 +295,19 @@ const Calendar = (props) => {
   let overmorrowDate = overmorrow.getDate()
   let overmorrowMonthNumber = overmorrow.getMonth() + 1
 
+  //filter out tasks based on date
   const currentDayList = taskList.filter((task, index) => {
     const [taskYear, taskMonth, taskDay] = task.taskDate.split('-')
     if (parseInt(taskMonth) === currentMonthNumber && parseInt(taskDay) === currentDate) {
+      return true
+    }
+    return false
+  })
+  //filter out tasks w/allday = true
+  let currentDayAllDayItemQuantity = 0
+  const currentDayAllDayList = currentDayList.filter((task, index) => {
+    if (task.showOnCalendar && task.allDay) {
+      currentDayAllDayItemQuantity = index + 1
       return true
     }
     return false
@@ -317,6 +322,14 @@ const Calendar = (props) => {
     }
     return false
   })
+  let tomorrowAllDayItemQuantity = 0
+  const tomorrowAllDayList = tomorrowList.filter((task, index) => {
+    if (task.showOnCalendar && task.allDay) {
+      tomorrowAllDayItemQuantity = index + 1
+      return true
+    }
+    return false
+  })
 
   const overmorrowList = taskList.filter((task, index) => {
     const taskDate = task.taskDate.split('-')
@@ -327,7 +340,26 @@ const Calendar = (props) => {
     }
     return false
   })
+  let overmorrowAllDayItemQuantity = 0
+  const overmorrowAllDayList = overmorrowList.filter((task, index) => {
+    if (task.showOnCalendar && task.allDay) {
+      overmorrowAllDayItemQuantity = index + 1
+      return true
+    }
+    return false
+  })
 
+  //calculate the min height for all day module on calendar so that all three days all day have the same height and are aligned
+  let allDayModHeight = Math.max(
+    Math.max(
+      currentDayAllDayItemQuantity,
+      tomorrowAllDayItemQuantity,
+      overmorrowAllDayItemQuantity,
+    ),
+    1,
+  )
+
+  //fetching weather API...
   const [todayWeather, setTodayWeather] = useState({
     daily: { weathercode: [0], temperature_2m_min: [0], temperature_2m_max: [0] },
   })
@@ -505,20 +537,15 @@ const Calendar = (props) => {
 
   //calculate visible window size and location of the calendar and dispatch to the store
 
-  // const boxRef = useRef();
-
   const boxRef = useRef()
   const calendarRef = props.calendarRef
 
   const getCalendarDaysPosition = () => {
-    const calendarNodeList = calendarRef?.current?.querySelectorAll('div.MuiGrid-root.MuiGrid-item')
-    // console.log(calendarNodeList.item(7).offsetLeft);
-    // console.log(boxRef.current.scrollLeft);
+    const calendarNodeList = boxRef?.current?.querySelectorAll('div.MuiGrid-root.MuiGrid-item')
 
-    // 1, 4, 7, caleandrNodeList offsetLeft distance minus scrollLeft distance = distance of the div from left side.
-    const day1Position = calendarNodeList.item(1).offsetLeft - boxRef.current.scrollLeft
-    const day2Position = calendarNodeList.item(4).offsetLeft - boxRef.current.scrollLeft
-    const day3Position = calendarNodeList.item(7).offsetLeft - boxRef.current.scrollLeft
+    const day1Position = calendarNodeList?.item(3).offsetLeft - boxRef.current.scrollLeft
+    const day2Position = calendarNodeList?.item(4).offsetLeft - boxRef.current.scrollLeft
+    const day3Position = calendarNodeList?.item(5).offsetLeft - boxRef.current.scrollLeft
 
     const daysPosition = {
       day1Position,
@@ -534,8 +561,6 @@ const Calendar = (props) => {
     const y = boxRef.current.offsetTop
     const width = boxRef.current.offsetWidth
     const height = boxRef.current.offsetHeight
-    // const domRect = boxRef.current.getBoundingClientRect();
-    // console.log(boxRef.current, calendarRef.current, calendarDayNode);
     const calendarSize = {
       x,
       y,
@@ -544,9 +569,6 @@ const Calendar = (props) => {
     }
     dispatch(calculateCalendarSize(calendarSize))
     getCalendarDaysPosition()
-    // const elem = document.elementFromPoint(x, y);
-    // console.log(elem?.querySelectorAll('div')[8]);
-    //2 or 3 or 6 (? viewport vs whole thing?), 35 or 38, 65 or 69
   }
 
   useEffect(() => {
@@ -558,124 +580,235 @@ const Calendar = (props) => {
     boxRef.current.addEventListener('scroll', getPosition)
 
     return () => {
-      boxRef?.current.removeEventListener('resize', getPosition)
-      boxRef?.current.removeEventListener('scroll', getPosition)
+      boxRef?.current?.removeEventListener('resize', getPosition)
+      boxRef?.current?.removeEventListener('scroll', getPosition)
     }
   }, [])
 
+  //set scroll bar position and add padding so that when all day list grows, the timeline doesn't move but the user is able to scroll up to see the full hours still
+
+  const [currentPos, setCurrentPos] = useState(allDayModHeight)
+  const prevPosRef = useRef(allDayModHeight)
+
+  useEffect(() => {
+    setCurrentPos(allDayModHeight)
+  }, [allDayModHeight])
+
+  useEffect(() => {
+    const scrollbar = document.querySelector('#scrollbar')
+    let timeLinePos = scrollbar.scrollTop
+    if (currentPos > prevPosRef.current) {
+      scrollbar.scrollTop = timeLinePos + 16
+    } else if (currentPos < prevPosRef.current) {
+      scrollbar.scrollTop = timeLinePos - 16
+    }
+    prevPosRef.current = currentPos
+  }, [currentPos])
+
+  // -16 when decreasing padding i.e. decreasing # of All Day events, + 16 when increasing padding + # All Day events
+
+  // useEffect(() => {
+  //   const scrollbar = document.querySelector('#scrollbar')
+  //   scrollbar.addEventListener('scroll', (event) => {
+  //     scrollbar.scrollTop = allDayModHeight * 16 + 3
+  //     console.log(`scrollTop value: ${scrollbar.scrollTop}`)
+  //   })
+  // }, [allDayModHeight])
+
   return (
     <Box
-      overflow='auto'
-      m={1}
+      // overflow='auto'
+      display='flex'
+      flexDirection='column'
+      m={0}
       border='1px solid #613cb0'
       borderRadius={1.5}
       backgroundColor='grey[50]'
       ref={boxRef}
+      maxHeight='300px'
+      // overflow='auto hidden'
+      overflow='scroll'
+      id='scrollbar'
     >
-      <Grid container columns={3} wrap='nowrap' maxHeight={330} spacing={0} ref={calendarRef}>
-        <Grid item xs={1} minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}>
-          <Grid container direction='column'>
-            <Grid item position='sticky' top='0px' backgroundColor='secondary.light' zIndex={3}>
-              <Box
-                minHeight={30}
-                maxHeight={30}
-                component={Grid}
-                container
-                alignItems='baseline'
-                justifyContent='left'
-                pt={0.5}
+      <Grid>
+        <Grid container wrap='nowrap' position='sticky' top='0px' zIndex={3}>
+          {/* contains the three headers */}
+          <Grid
+            item
+            position='sticky'
+            top='0px'
+            backgroundColor='secondary.light'
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+          >
+            <Box
+              minHeight={30}
+              maxHeight={30}
+              component={Grid}
+              container
+              alignItems='baseline'
+              justifyContent='left'
+              pt={0.5}
+            >
+              <Button
+                // className="TestButton"
+                // variant="contained"
+                size='small'
+                color='secondary'
+                onClick={() => {
+                  setCurrentDay(new Date())
+                }}
               >
-                <Button
-                  // className="TestButton"
-                  // variant="contained"
-                  size='small'
-                  color='secondary'
-                  onClick={() => {
-                    setCurrentDay(new Date())
-                    // fetchTodayWeather();
-                  }}
-                >
-                  Today
-                </Button>
-                <Button
-                  size='small'
-                  color='secondary'
-                  onClick={() => {
-                    let newDay = new Date(currentDay)
-                    newDay.setDate(newDay.getDate() - 3)
-                    setCurrentDay(newDay)
-                  }}
-                >
-                  {'<'}&lt;
-                </Button>
-                <Box component='span' ml={0}>
-                  {' '}
-                  {currentMonth} {currentDate} {weatherForecast(todayWeather)}
-                </Box>
+                Today
+              </Button>
+              <Button
+                size='small'
+                color='secondary'
+                onClick={() => {
+                  let newDay = new Date(currentDay)
+                  newDay.setDate(newDay.getDate() - 3)
+                  setCurrentDay(newDay)
+                }}
+              >
+                {'<'}&lt;
+              </Button>
+              <Box component='span' ml={0}>
+                {' '}
+                {currentMonth} {currentDate} {weatherForecast(todayWeather)}
               </Box>
-            </Grid>
-            <Grid item borderRight='1px solid #999' px={1}>
-              <Box position='relative'>
-                <DailyTimeFC />
-                <TaskBlock taskList={currentDayList} calendarRef={boxRef} />
+            </Box>
+            <Box
+              position='absolute'
+              backgroundColor='white'
+              borderTop='1px solid #999'
+              borderBottom='2px solid #999'
+              width='100%'
+              height={allDayModHeight * 16 + 3}
+              // '3' to add on the border height
+            >
+              <AllDayBlock taskList={currentDayAllDayList} />
+            </Box>
+          </Grid>
+          <Grid
+            item
+            position='sticky'
+            top='0px'
+            backgroundColor='#ece7f5'
+            zIndex={3}
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+          >
+            <Box
+              minHeight={30}
+              component={Grid}
+              container
+              alignItems={weatherToggle ? 'center' : 'baseline'}
+              justifyContent='center'
+              pt={0.5}
+            >
+              {tomorrowMonth} {tomorrowDate} {weatherForecast(tomoWeather)}
+            </Box>
+            <Box
+              position='absolute'
+              backgroundColor='white'
+              borderTop='1px solid #999'
+              borderBottom='2px solid #999'
+              width='100%'
+              height={allDayModHeight * 16 + 3}
+            >
+              <AllDayBlock taskList={tomorrowAllDayList} />
+            </Box>
+          </Grid>
+          <Grid
+            item
+            position='sticky'
+            top='0px'
+            backgroundColor='#ece7f5'
+            zIndex={3}
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+          >
+            <Box
+              minHeight={30}
+              maxHeight={30}
+              component={Grid}
+              container
+              alignItems='baseline'
+              // justifyContent={weatherToggle ? 'space-around' : 'flex-end'}
+              justifyContent='flex-end'
+              pt={0.5}
+              pr={4}
+            >
+              <Box component='span' mr={0} pr={weatherToggle ? '80px' : '0'}>
+                {overmorrowMonth} {overmorrowDate} {weatherForecast(overWeather)}
               </Box>
-            </Grid>
+              <Button
+                size='small'
+                color='secondary'
+                onClick={() => {
+                  let newDay = new Date(currentDay)
+                  newDay.setDate(newDay.getDate() + 3)
+                  setCurrentDay(newDay)
+                }}
+              >
+                {'>>'}
+              </Button>{' '}
+            </Box>
+            <Box
+              position='absolute'
+              backgroundColor='white'
+              borderTop='1px solid #999'
+              borderBottom='2px solid #999'
+              width='100%'
+              height={allDayModHeight * 16 + 3}
+            >
+              <AllDayBlock taskList={overmorrowAllDayList} />
+            </Box>
           </Grid>
         </Grid>
-        <Grid item xs={1} minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}>
-          <Grid container direction='column'>
-            <Grid item position='sticky' top='0px' backgroundColor='#ece7f5' zIndex={3}>
-              <Box
-                minHeight={30}
-                component={Grid}
-                container
-                alignItems={weatherToggle ? 'center' : 'baseline'}
-                justifyContent='center'
-                pt={0.5}
-              >
-                {tomorrowMonth} {tomorrowDate} {weatherForecast(tomoWeather)}
-              </Box>
-            </Grid>
-            <Grid item borderRight='1px solid #999' position='relative' px={1}>
+        <Grid
+          container
+          wrap='nowrap'
+          style={{
+            paddingTop: allDayModHeight * 16 + 3,
+          }}
+          //this padding changes in helping to make the scrollbar scrollable to the top of the days when allDay mod grows
+        >
+          {/* contains the three days' timeline */}
+          <Grid
+            item
+            borderRight='1px solid #999'
+            px={1}
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // xs={1}
+          >
+            <Box position='relative'>
               <DailyTimeFC />
-              <TaskBlock taskList={tomorrowList} calendarRef={boxRef} />
-            </Grid>
+
+              <TaskBlock dayTaskList={currentDayList} calendarRef={boxRef} />
+            </Box>
           </Grid>
-        </Grid>
-        <Grid item xs={1} minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}>
-          <Grid container direction='column'>
-            <Grid item position='sticky' top='0px' backgroundColor='#ece7f5' zIndex={3}>
-              <Box
-                minHeight={30}
-                maxHeight={30}
-                component={Grid}
-                container
-                alignItems='baseline'
-                // justifyContent={weatherToggle ? 'space-around' : 'flex-end'}
-                justifyContent='flex-end'
-                pt={0.5}
-                pr={4}
-              >
-                <Box component='span' mr={0} pr={weatherToggle ? '80px' : '0'}>
-                  {overmorrowMonth} {overmorrowDate} {weatherForecast(overWeather)}
-                </Box>
-                <Button
-                  size='small'
-                  color='secondary'
-                  onClick={() => {
-                    let newDay = new Date(currentDay)
-                    newDay.setDate(newDay.getDate() + 3)
-                    setCurrentDay(newDay)
-                  }}
-                >
-                  {'>>'}
-                </Button>{' '}
-              </Box>
-            </Grid>
-            <Grid item position='relative' pl={1} pr={3}>
-              <DailyTimeFC />
-              <TaskBlock taskList={overmorrowList} />
-            </Grid>
+          <Grid
+            item
+            borderRight='1px solid #999'
+            position='relative'
+            px={1}
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // xs={1}
+          >
+            <DailyTimeFC />
+            <TaskBlock dayTaskList={tomorrowList} calendarRef={boxRef} />
+          </Grid>
+          <Grid
+            item
+            position='relative'
+            pl={1}
+            pr={3}
+            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            // xs={1}
+          >
+            <DailyTimeFC />
+            <TaskBlock dayTaskList={overmorrowList} />
           </Grid>
         </Grid>
       </Grid>
@@ -735,8 +868,8 @@ function TaskField(props) {
   const handleClickAway = (e) => {
     e.preventDefault()
     if (
-      !e.target.classList?.contains('newToDo') &&
-      !e.target.parentElement.classList.contains('newToDo') &&
+      !e.target?.classList?.contains('newToDo') &&
+      !e.target?.parentElement?.classList?.contains('newToDo') &&
       taskIndex !== null
     ) {
       setEditMode(false)
@@ -796,7 +929,6 @@ function TaskField(props) {
     event?.preventDefault()
     setTaskName('')
     setTaskDate(formatDateToToday())
-    setAllDay(false)
     setStartTime('09:00')
     setEndTime('17:00')
     setTaskIndex(null)
@@ -844,27 +976,25 @@ function TaskField(props) {
             label='Show on Calendar'
             sx={{ width: 100, fontSize: 0.86 }}
           />
-          {showOnCalendar ? (
-            <Box>
-              <TextField
-                type='date'
-                label='Task date'
-                variant='outlined'
-                InputLabelProps={{ shrink: true }}
-                size='small'
-                value={taskDate}
-                onChange={(e) => {
-                  setTaskDate(e.target.value)
-                }}
-                min='2023-01-01'
-                max='2023-12-31'
-                // sx={{
-                //     width: 300
-                // }}
-                fullWidth
-              />
-            </Box>
-          ) : null}
+          <Box>
+            <TextField
+              type='date'
+              label='Task date'
+              variant='outlined'
+              InputLabelProps={{ shrink: true }}
+              size='small'
+              value={taskDate}
+              onChange={(e) => {
+                setTaskDate(e.target.value)
+              }}
+              min='2023-01-01'
+              max='2023-12-31'
+              // sx={{
+              //     width: 300
+              // }}
+              fullWidth
+            />
+          </Box>
 
           <FormControlLabel
             control={
@@ -991,6 +1121,7 @@ function NewTodo(props) {
         >
           <p>{newTodo.taskName}</p>
           <p>{newTodo.showOnCalendar ? newTodo.taskDate : null}</p>
+          <p>{newTodo.allDay ? 'All Day' : null}</p>
         </Box>
       </motion.div>
     </Grid>

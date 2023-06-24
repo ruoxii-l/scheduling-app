@@ -56,20 +56,17 @@ export const tumeySlice = createSlice({
       let cal = action.payload
       oldList.calendarWidthRange = [cal.x, cal.x + cal.width]
       oldList.calendarHeightRange = [cal.y, cal.y + cal.height]
-      //   console.log(oldList.calendarHeightRange, oldList.calendarWidthRange)
     },
     calendarDaysPosition: (oldList, action) => {
       let position = action.payload
       oldList.day1Position = position.day1Position
       oldList.day2Position = position.day2Position
       oldList.day3Position = position.day3Position
-      //   console.log(oldList.day1Position, oldList.day2Position, oldList.day3Position)
     },
     dropInCalendar: (oldList, action) => {
       const x = action.payload.x
       const y = action.payload.y
       const task = oldList.list[oldList.taskIndexToEdit]
-      //   console.log(action.payload.x, action.payload.y)
       if (
         x > oldList.calendarWidthRange[0] &&
         x < oldList.calendarWidthRange[1] &&
