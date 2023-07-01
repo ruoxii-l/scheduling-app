@@ -265,7 +265,14 @@ const AllDayBlock = (props) => {
     </Box>
   ))
   return (
-    <Box position='sticky' top='0' display='flex' flexDirection='row'>
+    <Box
+      position='sticky'
+      top='0'
+      display='flex'
+      flexDirection='row'
+      backgroundColor='#c2b3ff'
+      color='white'
+    >
       <Box flex={1}> All day</Box>
       <Box flex={5}>{allDayItems}</Box>
     </Box>
@@ -638,8 +645,9 @@ const Calendar = (props) => {
             position='sticky'
             top='0px'
             backgroundColor='secondary.light'
-            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+            width='100%'
+            // minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            minWidth={'360px'}
           >
             <Box
               minHeight={30}
@@ -679,11 +687,11 @@ const Calendar = (props) => {
             </Box>
             <Box
               position='absolute'
-              backgroundColor='white'
               borderTop='1px solid #999'
               borderBottom='2px solid #999'
               width='100%'
               height={allDayModHeight * 16 + 3}
+              backgroundColor='#c2b3ff'
               // '3' to add on the border height
             >
               <AllDayBlock taskList={currentDayAllDayList} />
@@ -695,8 +703,9 @@ const Calendar = (props) => {
             top='0px'
             backgroundColor='#ece7f5'
             zIndex={3}
-            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+            width={'100%'}
+            // minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            minWidth={'360px'}
           >
             <Box
               minHeight={30}
@@ -710,7 +719,7 @@ const Calendar = (props) => {
             </Box>
             <Box
               position='absolute'
-              backgroundColor='white'
+              backgroundColor='#c2b3ff'
               borderTop='1px solid #999'
               borderBottom='2px solid #999'
               width='100%'
@@ -725,8 +734,9 @@ const Calendar = (props) => {
             top='0px'
             backgroundColor='#ece7f5'
             zIndex={3}
-            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // minWidth={`max(360px, calc(100vw - 40px - 360px - 360px))`}
+            width={'100%'}
+            // minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            minWidth={'360px'}
           >
             <Box
               minHeight={30}
@@ -756,7 +766,7 @@ const Calendar = (props) => {
             </Box>
             <Box
               position='absolute'
-              backgroundColor='white'
+              backgroundColor='#c2b3ff'
               borderTop='1px solid #999'
               borderBottom='2px solid #999'
               width='100%'
@@ -779,8 +789,9 @@ const Calendar = (props) => {
             item
             borderRight='1px solid #999'
             px={1}
-            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // xs={1}
+            width={'100%'}
+            // minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            minWidth={'360px'}
           >
             <Box position='relative'>
               <DailyTimeFC />
@@ -793,8 +804,9 @@ const Calendar = (props) => {
             borderRight='1px solid #999'
             position='relative'
             px={1}
-            minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // xs={1}
+            width={'100%'}
+            // minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
+            minWidth={'360px'}
           >
             <DailyTimeFC />
             <TaskBlock dayTaskList={tomorrowList} calendarRef={boxRef} />
@@ -804,8 +816,9 @@ const Calendar = (props) => {
             position='relative'
             pl={1}
             pr={3}
+            width={'100%'}
             minWidth={`min(360px, calc(100vw - 40px - 40px - 20px))`}
-            // xs={1}
+            minWidth={'360px'}
           >
             <DailyTimeFC />
             <TaskBlock dayTaskList={overmorrowList} />
